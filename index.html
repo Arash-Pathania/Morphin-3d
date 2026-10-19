@@ -10,8 +10,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
-    <!-- Three.js 3D Engine CDN -->
+    <!-- Three.js & GLTFLoader CDN Engine -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 
     <style>
         :root {
@@ -118,7 +119,7 @@
             gap: 8px;
         }
 
-        /* Corner Mount Brackets */
+        /* Corner Brackets */
         .corner-mount {
             position: absolute;
             width: 8px;
@@ -298,10 +299,10 @@
 
     <!-- Header Bar -->
     <div class="hud-header">
-        <div class="hud-brand">SAMURAI // 3D OMNI v8.0</div>
+        <div class="hud-brand">SAMURAI // 3D GLTF v9.0</div>
         <div class="hud-status-box">
             <div class="status-dot"></div>
-            <span>3D WEBGL ONLINE // 侍</span>
+            <span>GLTF ENGINE ONLINE // 侍</span>
         </div>
     </div>
 
@@ -375,20 +376,19 @@
     <div class="hud-footer">
         <span>LOC: TOKYO / SHIBA HOUSE</span>
         <span>LATENCY: 4ms</span>
-        <span>SYS_VER: 16.0.0</span>
+        <span>SYS_VER: 18.0.0</span>
     </div>
 
     <script>
         const rangerData = {
-            red: { name: "RED SAMURAI RANGER", jp: "シンケンレッド", meta: "// FIRE SYMBOL // LION ZORD // FIRE SMASHER", symbol: "火", color: "#ff0033", glow: "rgba(255, 0, 51, 0.35)", radar: "100,25 165,68 160,145 100,180 35,145 35,68", pow: 95, sym: 100, spd: 85, ken: 98 },
-            blue: { name: "BLUE SAMURAI RANGER", jp: "シンケンブルー", meta: "// WATER SYMBOL // DRAGON ZORD // HYDRO BOW", symbol: "水", color: "#0088ff", glow: "rgba(0, 136, 255, 0.35)", radar: "100,40 155,75 150,140 100,170 45,140 40,75", pow: 85, sym: 95, spd: 90, ken: 92 },
-            green: { name: "GREEN SAMURAI RANGER", jp: "シンケングリーン", meta: "// FOREST SYMBOL // BEAR ZORD // FOREST SPEAR", symbol: "木", color: "#00cc44", glow: "rgba(0, 204, 68, 0.35)", radar: "100,35 150,70 155,145 100,175 40,145 45,70", pow: 88, sym: 85, spd: 92, ken: 85 },
-            yellow: { name: "YELLOW SAMURAI RANGER", jp: "シンケンイエロー", meta: "// EARTH SYMBOL // APE ZORD // EARTH SLICER", symbol: "土", color: "#ffcc00", glow: "rgba(255, 204, 0, 0.35)", radar: "100,45 145,78 145,135 100,165 50,135 50,78", pow: 80, sym: 90, spd: 82, ken: 80 },
-            pink: { name: "PINK SAMURAI RANGER", jp: "シンケンピンク", meta: "// WIND SYMBOL // TURTLE ZORD // SKY FAN", symbol: "天", color: "#ff66cc", glow: "rgba(255, 102, 204, 0.35)", radar: "100,50 160,70 140,130 100,160 55,130 40,70", pow: 78, sym: 92, spd: 95, ken: 84 },
-            gold: { name: "GOLD SAMURAI RANGER", jp: "シンケンゴールド", meta: "// LIGHT SYMBOL // LOBSTER ZORD // BARRACUDA BLADE", symbol: "光", color: "#ffd700", glow: "rgba(255, 215, 0, 0.35)", radar: "100,20 170,65 165,150 100,185 30,150 30,65", pow: 98, sym: 98, spd: 100, ken: 96 }
+            red: { name: "RED SAMURAI RANGER", jp: "シンケンレッド", meta: "// FIRE SYMBOL // LION ZORD // FIRE SMASHER", symbol: "火", color: "#ff0033", glow: "rgba(255, 0, 51, 0.35)", model: "assets/red-helmet.glb", radar: "100,25 165,68 160,145 100,180 35,145 35,68", pow: 95, sym: 100, spd: 85, ken: 98 },
+            blue: { name: "BLUE SAMURAI RANGER", jp: "シンケンブルー", meta: "// WATER SYMBOL // DRAGON ZORD // HYDRO BOW", symbol: "水", color: "#0088ff", glow: "rgba(0, 136, 255, 0.35)", model: "assets/blue-helmet.glb", radar: "100,40 155,75 150,140 100,170 45,140 40,75", pow: 85, sym: 95, spd: 90, ken: 92 },
+            green: { name: "GREEN SAMURAI RANGER", jp: "シンケングリーン", meta: "// FOREST SYMBOL // BEAR ZORD // FOREST SPEAR", symbol: "木", color: "#00cc44", glow: "rgba(0, 204, 68, 0.35)", model: "assets/green-helmet.glb", radar: "100,35 150,70 155,145 100,175 40,145 45,70", pow: 88, sym: 85, spd: 92, ken: 85 },
+            yellow: { name: "YELLOW SAMURAI RANGER", jp: "シンケンイエロー", meta: "// EARTH SYMBOL // APE ZORD // EARTH SLICER", symbol: "土", color: "#ffcc00", glow: "rgba(255, 204, 0, 0.35)", model: "assets/yellow-helmet.glb", radar: "100,45 145,78 145,135 100,165 50,135 50,78", pow: 80, sym: 90, spd: 82, ken: 80 },
+            pink: { name: "PINK SAMURAI RANGER", jp: "シンケンピンク", meta: "// WIND SYMBOL // TURTLE ZORD // SKY FAN", symbol: "天", color: "#ff66cc", glow: "rgba(255, 102, 204, 0.35)", model: "assets/pink-helmet.glb", radar: "100,50 160,70 140,130 100,160 55,130 40,70", pow: 78, sym: 92, spd: 95, ken: 84 },
+            gold: { name: "GOLD SAMURAI RANGER", jp: "シンケンゴールド", meta: "// LIGHT SYMBOL // LOBSTER ZORD // BARRACUDA BLADE", symbol: "光", color: "#ffd700", glow: "rgba(255, 215, 0, 0.35)", model: "assets/gold-helmet.glb", radar: "100,20 170,65 165,150 100,185 30,150 30,65", pow: 98, sym: 98, spd: 100, ken: 96 }
         };
 
-        // Text Scramble Matrix Effect
         function scrambleText(elementId, finalText) {
             const chars = '!@#$%^&*()_+-= []{}|;:,.<>?/漢字侍';
             let iterations = 0;
@@ -402,7 +402,7 @@
             }, 20);
         }
 
-        // --- THREE.JS 3D ENGINE INITIALIZATION ---
+        // --- THREE.JS WebGL & GLTF ENGINE ---
         const container = document.querySelector('.stage-container');
         const canvas = document.getElementById('webgl-canvas');
 
@@ -414,29 +414,48 @@
         renderer.setSize(container.clientWidth, container.clientHeight);
         renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-        // Create Procedural 3D Mesh
+        // Procedural Fallback Mesh
         const geometry = new THREE.IcosahedronGeometry(1, 1);
-        const material = new THREE.MeshPhongMaterial({
-            color: 0xff0033,
-            wireframe: true,
-            emissive: 0x220000,
-            shininess: 100
-        });
-        const helmetMesh = new THREE.Mesh(geometry, material);
-        scene.add(helmetMesh);
+        const material = new THREE.MeshPhongMaterial({ color: 0xff0033, wireframe: true, emissive: 0x220000, shininess: 100 });
+        let activeMesh = new THREE.Mesh(geometry, material);
+        scene.add(activeMesh);
 
-        // Lighting
+        // Lighting System
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
         scene.add(ambientLight);
 
-        const pointLight = new THREE.PointLight(0xff0033, 2, 10);
+        const pointLight = new THREE.PointLight(0xff0033, 2.5, 10);
         pointLight.position.set(2, 2, 2);
         scene.add(pointLight);
 
-        // OMNI-DIRECTIONAL 3D TOUCH ORBIT ENGINE
+        // GLTF Model Loader
+        const gltfLoader = new THREE.GLTFLoader();
+        let loaded3DModel = null;
+
+        function fetchGLTFModel(url) {
+            gltfLoader.load(
+                url,
+                (gltf) => {
+                    if (loaded3DModel) scene.remove(loaded3DModel);
+                    activeMesh.visible = false;
+
+                    loaded3DModel = gltf.scene;
+                    loaded3DModel.scale.set(1.4, 1.4, 1.4);
+                    loaded3DModel.position.set(0, -0.2, 0);
+                    scene.add(loaded3DModel);
+                },
+                undefined,
+                (err) => {
+                    // Fallback to procedural mesh if .glb isn't present in assets/ yet
+                    if (loaded3DModel) scene.remove(loaded3DModel);
+                    activeMesh.visible = true;
+                }
+            );
+        }
+
+        // Touch Omni-Orbit Control
         let isDragging = false;
-        let previousTouchX = 0;
-        let previousTouchY = 0;
+        let previousTouchX = 0, previousTouchY = 0;
 
         container.addEventListener('touchstart', (e) => {
             isDragging = true;
@@ -446,13 +465,12 @@
 
         container.addEventListener('touchmove', (e) => {
             if (!isDragging) return;
-            
             let deltaX = e.touches[0].clientX - previousTouchX;
             let deltaY = e.touches[0].clientY - previousTouchY;
 
-            // Free 360-Degree Omni-Directional Rotation
-            helmetMesh.rotation.y += deltaX * 0.01;
-            helmetMesh.rotation.x += deltaY * 0.01;
+            let target = loaded3DModel || activeMesh;
+            target.rotation.y += deltaX * 0.01;
+            target.rotation.x += deltaY * 0.01;
 
             previousTouchX = e.touches[0].clientX;
             previousTouchY = e.touches[0].clientY;
@@ -460,19 +478,17 @@
 
         container.addEventListener('touchend', () => { isDragging = false; });
 
-        // Render Loop
         function animate() {
             requestAnimationFrame(animate);
             if (!isDragging) {
-                // Gentle Omni-directional Auto Orbit
-                helmetMesh.rotation.y += 0.008;
-                helmetMesh.rotation.x += 0.003;
+                let target = loaded3DModel || activeMesh;
+                target.rotation.y += 0.008;
+                target.rotation.x += 0.003;
             }
             renderer.render(scene, camera);
         }
         animate();
 
-        // Load Ranger Function
         function loadRanger(key, btn) {
             document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
@@ -487,9 +503,10 @@
             document.getElementById('r-meta').innerText = data.meta;
             document.getElementById('r-symbol').innerText = data.symbol;
 
-            // Update 3D Metallic Accent Color & Lighting
             material.color.set(data.color);
             pointLight.color.set(data.color);
+
+            fetchGLTFModel(data.model);
 
             document.getElementById('radar-shape').setAttribute('points', data.radar);
 
@@ -497,12 +514,4 @@
             document.getElementById('v-sym').innerText = data.sym + "%";
             document.getElementById('v-spd').innerText = data.spd + "%";
             document.getElementById('v-ken').innerText = data.ken + "%";
-
-            document.getElementById('b-pow').style.width = data.pow + "%";
-            document.getElementById('b-sym').style.width = data.sym + "%";
-            document.getElementById('b-spd').style.width = data.spd + "%";
-            document.getElementById('b-ken').style.width = data.ken + "%";
-        }
-    </script>
-</body>
-</html>
+        
