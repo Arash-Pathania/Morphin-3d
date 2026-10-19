@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>侍 // POWER RANGERS SAMURAI 3D TACTICAL INDEX</title>
+
+    <!-- Sci-Fi Typography Stack -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <!-- Three.js 3D Engine CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --accent-color: #ff0033;
+            --accent-glow: rgba(255, 0, 51, 0.35);
+            --bg-dark: #050508;
+            --panel-bg: rgba(12, 12, 18, 0.92);
+            --border-dim: rgba(255, 255, 255, 0.15);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: #ffffff;
+            font-family: 'Share Tech Mono', monospace;
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(var(--accent-glow) 1px, transparent 0),
+                linear-gradient(to right, var(--border-dim) 1px, transparent 1px),
+                linear-gradient(to bottom, var(--border-dim) 1px, transparent 1px);
+            background-size: 24px 24px, 12px 12px, 12px 12px;
+            transition: background 0.5s ease;
+        }
+
+        /* CRT Scanline Overlay */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%);
+            background-size: 100% 4px;
+            z-index: 10;
+            pointer-events: none;
+            opacity: 0.6;
+        }
+
+        /* Top HUD Bar */
+        .hud-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--accent-color);
+            padding-bottom: 6px;
+            transition: border-color 0.5s ease;
+        }
+
+        .hud-brand {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 1.5px;
+            color: var(--accent-color);
+            transition: color 0.5s ease;
+        }
+
+        .hud-status-box {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.55rem;
+            border: 1px solid var(--accent-color);
+            padding: 2px 6px;
+            background: var(--accent-glow);
+            transition: all 0.5s ease;
+        }
+
+        .status-dot {
+            width: 6px;
+            height: 6px;
+            background-color: var(--accent-color);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--accent-color);
+            animation: pulse 1.5s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+
+        /* Central Card Stage */
+        .hud-card {
+            position: relative;
+            background: var(--panel-bg);
+            border: 1px solid var(--border-dim);
+            padding: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 25px rgba(0,0,0,0.95), inset 0 0 15px var(--accent-glow);
+            transition: border-color 0.5s ease, box-shadow 0.5s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Corner Mount Brackets */
+        .corner-mount {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-color: var(--accent-color);
+            border-style: solid;
+            transition: border-color 0.5s ease;
+        }
+        .top-left { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
+        .top-right { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
+        .bottom-left { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
+        .bottom-right { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
+        .kanji-watermark {
+            position: absolute;
+            top: 4px;
+            right: 8px;
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: rgba(255, 255, 255, 0.05);
+            pointer-events: none;
+            line-height: 1;
+            transition: color 0.5s ease;
+        }
+
+        /* 3D WebGL Canvas Stage */
+        .stage-container {
+            width: 100%;
+            height: 180px;
+            position: relative;
+            background: radial-gradient(circle, var(--accent-glow) 0%, transparent 75%);
+            border: 1px dashed rgba(255, 255, 255, 0.12);
+            overflow: hidden;
+            transition: background 0.5s ease;
+            touch-action: none;
+        }
+
+        #webgl-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+
+        .ranger-title-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 4px;
+        }
+
+        .ranger-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            color: #ffffff;
+            line-height: 1.2;
+        }
+
+        .ranger-jp-name {
+            font-size: 0.75rem;
+            color: var(--accent-color);
+            font-weight: bold;
+            white-space: nowrap;
+        }
+
+        .ranger-subtitle {
+            font-size: 0.58rem;
+            color: var(--accent-color);
+            letter-spacing: 0.5px;
+            transition: color 0.5s ease;
+            margin-top: 2px;
+        }
+
+        /* Radar & Linear Stats */
+        .stats-container {
+            display: grid;
+            grid-template-columns: 110px 1fr;
+            gap: 10px;
+            align-items: center;
+            margin-top: 4px;
+        }
+
+        .radar-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        polygon.radar-poly {
+            fill: var(--accent-glow);
+            stroke: var(--accent-color);
+            stroke-width: 2;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .stat-group {
+            margin-bottom: 4px;
+        }
+
+        .stat-header {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.52rem;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 2px;
+        }
+
+        .stat-bar-bg {
+            height: 5px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px var(--accent-color);
+            transition: width 0.5s ease, background-color 0.5s ease;
+        }
+
+        /* Selector Grid */
+        .selector-header {
+            font-size: 0.58rem;
+            color: rgba(255, 255, 255, 0.5);
+            margin-bottom: 4px;
+        }
+
+        .ranger-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .grid-btn {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-dim);
+            color: #ffffff;
+            padding: 8px 4px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .grid-btn span {
+            font-size: 0.55rem;
+            letter-spacing: 0.5px;
+        }
+
+        .grid-btn.active {
+            border-color: var(--accent-color);
+            background: var(--accent-glow);
+            box-shadow: inset 0 0 8px var(--accent-glow);
+            color: var(--accent-color);
+        }
+
+        /* Telemetry Footer */
+        .hud-footer {
+            font-size: 0.52rem;
+            color: rgba(255, 255, 255, 0.4);
+            display: flex;
+            justify-content: space-between;
+            border-top: 1px solid var(--border-dim);
+            padding-top: 6px;
+            margin-top: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Bar -->
+    <div class="hud-header">
+        <div class="hud-brand">SAMURAI // 3D OMNI v8.0</div>
+        <div class="hud-status-box">
+            <div class="status-dot"></div>
+            <span>3D WEBGL ONLINE // 侍</span>
+        </div>
+    </div>
+
+    <!-- Main Display Stage -->
+    <div class="hud-card">
+        <div class="corner-mount top-left"></div>
+        <div class="corner-mount top-right"></div>
+        <div class="corner-mount bottom-left"></div>
+        <div class="corner-mount bottom-right"></div>
+
+        <div class="kanji-watermark" id="r-symbol">火</div>
+
+        <!-- 3D Interactive WebGL Stage -->
+        <div class="stage-container">
+            <canvas id="webgl-canvas"></canvas>
+        </div>
+        
+        <div>
+            <div class="ranger-title-box">
+                <div class="ranger-title" id="r-name">RED SAMURAI RANGER</div>
+                <div class="ranger-jp-name" id="r-jp">シンケンレッド</div>
+            </div>
+            <div class="ranger-subtitle" id="r-meta">// FIRE SYMBOL // LION ZORD // FIRE SMASHER</div>
+        </div>
+
+        <!-- Radar & Linear Stats Stage -->
+        <div class="stats-container">
+            <div class="radar-box">
+                <svg width="100" height="100" viewBox="0 0 200 200">
+                    <polygon points="100,20 176,64 176,152 100,196 24,152 24,64" fill="none" stroke="rgba(255,255,255,0.15)" stroke-width="1"/>
+                    <polygon points="100,50 148,78 148,134 100,162 52,134 52,78" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+                    <polygon id="radar-shape" class="radar-poly" points="100,25 165,68 160,145 100,180 35,145 35,68" />
+                </svg>
+            </div>
+
+            <div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>COMBAT POWER</span><span id="v-pow">95%</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" id="b-pow" style="width: 95%;"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>SYMBOL POWER</span><span id="v-sym">100%</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" id="b-sym" style="width: 100%;"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>AGILITY / SPEED</span><span id="v-spd">85%</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" id="b-spd" style="width: 85%;"></div></div>
+                </div>
+                <div class="stat-group">
+                    <div class="stat-header"><span>KENJUTSU MASTERY</span><span id="v-ken">98%</span></div>
+                    <div class="stat-bar-bg"><div class="stat-bar-fill" id="b-ken" style="width: 98%;"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 6 Ranger Selector Grid -->
+    <div>
+        <div class="selector-header">// SELECT SAMURAI DATASTREAM:</div>
+        <div class="ranger-grid">
+            <button class="grid-btn active" onclick="loadRanger('red', this)"><span>01. RED (火)</span></button>
+            <button class="grid-btn" onclick="loadRanger('blue', this)"><span>02. BLUE (水)</span></button>
+            <button class="grid-btn" onclick="loadRanger('green', this)"><span>03. GREEN (木)</span></button>
+            <button class="grid-btn" onclick="loadRanger('yellow', this)"><span>04. YELLOW (土)</span></button>
+            <button class="grid-btn" onclick="loadRanger('pink', this)"><span>05. PINK (天)</span></button>
+            <button class="grid-btn" onclick="loadRanger('gold', this)"><span>06. GOLD (光)</span></button>
+        </div>
+    </div>
+
+    <!-- Telemetry Footer -->
+    <div class="hud-footer">
+        <span>LOC: TOKYO / SHIBA HOUSE</span>
+        <span>LATENCY: 4ms</span>
+        <span>SYS_VER: 16.0.0</span>
+    </div>
+
+    <script>
+        const rangerData = {
+            red: { name: "RED SAMURAI RANGER", jp: "シンケンレッド", meta: "// FIRE SYMBOL // LION ZORD // FIRE SMASHER", symbol: "火", color: "#ff0033", glow: "rgba(255, 0, 51, 0.35)", radar: "100,25 165,68 160,145 100,180 35,145 35,68", pow: 95, sym: 100, spd: 85, ken: 98 },
+            blue: { name: "BLUE SAMURAI RANGER", jp: "シンケンブルー", meta: "// WATER SYMBOL // DRAGON ZORD // HYDRO BOW", symbol: "水", color: "#0088ff", glow: "rgba(0, 136, 255, 0.35)", radar: "100,40 155,75 150,140 100,170 45,140 40,75", pow: 85, sym: 95, spd: 90, ken: 92 },
+            green: { name: "GREEN SAMURAI RANGER", jp: "シンケングリーン", meta: "// FOREST SYMBOL // BEAR ZORD // FOREST SPEAR", symbol: "木", color: "#00cc44", glow: "rgba(0, 204, 68, 0.35)", radar: "100,35 150,70 155,145 100,175 40,145 45,70", pow: 88, sym: 85, spd: 92, ken: 85 },
+            yellow: { name: "YELLOW SAMURAI RANGER", jp: "シンケンイエロー", meta: "// EARTH SYMBOL // APE ZORD // EARTH SLICER", symbol: "土", color: "#ffcc00", glow: "rgba(255, 204, 0, 0.35)", radar: "100,45 145,78 145,135 100,165 50,135 50,78", pow: 80, sym: 90, spd: 82, ken: 80 },
+            pink: { name: "PINK SAMURAI RANGER", jp: "シンケンピンク", meta: "// WIND SYMBOL // TURTLE ZORD // SKY FAN", symbol: "天", color: "#ff66cc", glow: "rgba(255, 102, 204, 0.35)", radar: "100,50 160,70 140,130 100,160 55,130 40,70", pow: 78, sym: 92, spd: 95, ken: 84 },
+            gold: { name: "GOLD SAMURAI RANGER", jp: "シンケンゴールド", meta: "// LIGHT SYMBOL // LOBSTER ZORD // BARRACUDA BLADE", symbol: "光", color: "#ffd700", glow: "rgba(255, 215, 0, 0.35)", radar: "100,20 170,65 165,150 100,185 30,150 30,65", pow: 98, sym: 98, spd: 100, ken: 96 }
+        };
+
+        // Text Scramble Matrix Effect
+        function scrambleText(elementId, finalText) {
+            const chars = '!@#$%^&*()_+-= []{}|;:,.<>?/漢字侍';
+            let iterations = 0;
+            const interval = setInterval(() => {
+                document.getElementById(elementId).innerText = finalText.split('').map((char, index) => {
+                    if (index < iterations) return finalText[index];
+                    return chars[Math.floor(Math.random() * chars.length)];
+                }).join('');
+                if (iterations >= finalText.length) clearInterval(interval);
+                iterations += 1 / 2;
+            }, 20);
+        }
+
+        // --- THREE.JS 3D ENGINE INITIALIZATION ---
+        const container = document.querySelector('.stage-container');
+        const canvas = document.getElementById('webgl-canvas');
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+        camera.position.z = 3.5;
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Create Procedural 3D Mesh
+        const geometry = new THREE.IcosahedronGeometry(1, 1);
+        const material = new THREE.MeshPhongMaterial({
+            color: 0xff0033,
+            wireframe: true,
+            emissive: 0x220000,
+            shininess: 100
+        });
+        const helmetMesh = new THREE.Mesh(geometry, material);
+        scene.add(helmetMesh);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+        scene.add(ambientLight);
+
+        const pointLight = new THREE.PointLight(0xff0033, 2, 10);
+        pointLight.position.set(2, 2, 2);
+        scene.add(pointLight);
+
+        // OMNI-DIRECTIONAL 3D TOUCH ORBIT ENGINE
+        let isDragging = false;
+        let previousTouchX = 0;
+        let previousTouchY = 0;
+
+        container.addEventListener('touchstart', (e) => {
+            isDragging = true;
+            previousTouchX = e.touches[0].clientX;
+            previousTouchY = e.touches[0].clientY;
+        });
+
+        container.addEventListener('touchmove', (e) => {
+            if (!isDragging) return;
+            
+            let deltaX = e.touches[0].clientX - previousTouchX;
+            let deltaY = e.touches[0].clientY - previousTouchY;
+
+            // Free 360-Degree Omni-Directional Rotation
+            helmetMesh.rotation.y += deltaX * 0.01;
+            helmetMesh.rotation.x += deltaY * 0.01;
+
+            previousTouchX = e.touches[0].clientX;
+            previousTouchY = e.touches[0].clientY;
+        });
+
+        container.addEventListener('touchend', () => { isDragging = false; });
+
+        // Render Loop
+        function animate() {
+            requestAnimationFrame(animate);
+            if (!isDragging) {
+                // Gentle Omni-directional Auto Orbit
+                helmetMesh.rotation.y += 0.008;
+                helmetMesh.rotation.x += 0.003;
+            }
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Load Ranger Function
+        function loadRanger(key, btn) {
+            document.querySelectorAll('.grid-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const data = rangerData[key];
+
+            document.documentElement.style.setProperty('--accent-color', data.color);
+            document.documentElement.style.setProperty('--accent-glow', data.glow);
+
+            scrambleText('r-name', data.name);
+            document.getElementById('r-jp').innerText = data.jp;
+            document.getElementById('r-meta').innerText = data.meta;
+            document.getElementById('r-symbol').innerText = data.symbol;
+
+            // Update 3D Metallic Accent Color & Lighting
+            material.color.set(data.color);
+            pointLight.color.set(data.color);
+
+            document.getElementById('radar-shape').setAttribute('points', data.radar);
+
+            document.getElementById('v-pow').innerText = data.pow + "%";
+            document.getElementById('v-sym').innerText = data.sym + "%";
+            document.getElementById('v-spd').innerText = data.spd + "%";
+            document.getElementById('v-ken').innerText = data.ken + "%";
+
+            document.getElementById('b-pow').style.width = data.pow + "%";
+            document.getElementById('b-sym').style.width = data.sym + "%";
+            document.getElementById('b-spd').style.width = data.spd + "%";
+            document.getElementById('b-ken').style.width = data.ken + "%";
+        }
+    </script>
+</body>
+</html>
